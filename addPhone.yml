@@ -1,0 +1,43 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+  vars_prompt:
+  - name: phonename
+    prompt: Enter the phone device name to create
+    private: no
+  - name: model
+    prompt: Enter the phone model name (e.g. 'Cisco 7975')
+    private: no
+  tasks:
+    - name: Add phone with line
+      uri:
+        url: "https://{{ ansible_host }}:8443/axl/"
+        method: POST
+        headers:
+          Content-Type: text/xml
+          SOAPAction: '"CUCM:DB ver=14.0 addPhone"'
+        force_basic_auth: yes
+        user: "{{ hostvars[ansible_host].axl_user }}"
+        password: "{{ hostvars[ansible_host].axl_password }}"
+        body_format: raw
+        body: '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.cisco.com/AXL/API/12.5">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <ns:addPhone sequence="1">
+                      <phone>
+                            <name>{{ phonename }}</name>
+                            <product>{{ model }}</product>
+                            <model>{{ model }}</model>
+                            <class>Phone</class>
+                            <protocol>SIP</protocol>
+                            <protocolSide>User</protocolSide>
+                            <callingSearchSpaceName/>
+                            <devicePoolName>Default</devicePoolName>
+                      </phone>
+                    </ns:addPhone>
+                </soapenv:Body>
+              </soapenv:Envelope>'
+        validate_certs: false
+        return_content: yes
+        status_code: 200

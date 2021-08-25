@@ -1,0 +1,41 @@
+# Work-in-progress: I suspect there is no good way to do this 
+#   without writing your own module using Python paramiko
+
+---
+- hosts: HQCluster
+  connection: paramiko
+  gather_facts: no
+  remote_user: Administrator
+  vars: 
+    ansible_paramiko_password: ciscopsdt
+  tasks:
+  - name: Get CUCM version
+    raw: utils show version
+    register: output
+
+  - debug:
+      msg: "{{ output }}"
+
+# The Python code below does work - perhaps we can just run it as a custom module...
+
+# import paramiko
+# import paramiko_expect as pe
+# username = "Administrator"
+# password = "ciscopsdt"
+# host = "ds-ucm1251.cisco.com"
+# port = 22
+
+# ssh_client = paramiko.SSHClient();
+# ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+# ssh_client.connect(hostname=host,username=username,password=password)
+
+# interact = pe.SSHClientInteraction(ssh_client, timeout=200, display=False)
+# interact.buffer_size = 1000000
+# interact.expect('admin:')
+# interact.send('show account')
+# interact.expect('admin:')
+# cmd_output_ls = interact.current_output_clean
+# print(cmd_output_ls)
+
+# interact.send('exit')
+# interact.expect()      
