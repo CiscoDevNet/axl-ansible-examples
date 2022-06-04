@@ -1,0 +1,23 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Read CSV data
+      read_csv:
+        path: DATA.csv
+      register: csv_data
+
+    - name: Add bulk users
+      vars:
+        dn: "{{ item.dn }}"
+        routePartition: "{{ item.routePartition }}"
+        device_name: "{{ item.device_name }}"
+        model: "{{ item.model }}"
+        userid: "{{ item.userid }}"
+        lastName: "{{ item.lastName }}"
+        password: "{{ item.password }}"
+        pin: "{{ item.pin }}"
+      include_tasks: axl/addLinePhoneUser.yml
+      loop: "{{ csv_data.list }}"

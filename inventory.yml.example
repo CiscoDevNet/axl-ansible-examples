@@ -1,6 +1,8 @@
 ---
 HQCluster:
   hosts:
-    cucm_host_here:
+    cucm.example.com: 
       axl_user: 
       axl_password: 
+      cli_user: 
+      cli_password: 

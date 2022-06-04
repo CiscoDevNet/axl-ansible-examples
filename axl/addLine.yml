@@ -1,0 +1,31 @@
+---
+- name: Add Line
+  uri:
+    url: "https://{{ ansible_host }}:8443/axl/"
+    method: POST
+    headers:
+      Content-Type: text/xml
+      SOAPAction: '"CUCM:DB ver={{ axl_version }} addLine"'
+    force_basic_auth: yes
+    user: "{{ hostvars[ansible_host].axl_user }}"
+    password: "{{ hostvars[ansible_host].axl_password }}"
+    body: >-
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.cisco.com/AXL/API/{{ axl_version }}">
+        <soapenv:Body>
+          <ns:addLine sequence="1">
+            <line>
+              <pattern>{{ dn }}</pattern>
+              <routePartitionName>{{ routePartition }}</routePartitionName>
+            </line>
+          </ns:addLine>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    validate_certs: false
+    return_content: yes
+    status_code: 
+      - 200
+      - 500
+  register: response
+  changed_when: response.status == 200
+  failed_when: response.status == 500 and '<axlcode>4052' not in response.content
+

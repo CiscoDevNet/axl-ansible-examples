@@ -1,0 +1,44 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+
+  vars_prompt:
+    - name: userid
+      prompt: Enter userid
+      private: no
+    - name: lastName
+      prompt: Enter last name
+      private: no
+    - name: password
+      prompt: Enter password
+      private: no
+    - name: pin
+      prompt: Enter user PIN (numbers only)
+      private: no
+    - name: device_name
+      prompt: Enter the user's device name (e.g. SEP123456789012)
+      private: no
+    - name: model
+      prompt: Enter the device model (e.g. Cisco 7975)
+      private: no
+    - name: dn
+      prompt: Enter new directory number (e.g. 1001)
+      private: no
+    - name: routePartition
+      prompt: Enter the partition name (press enter for no partition)
+      private: no
+
+  tasks:
+    - name: Get CUCM/AXL versions
+      include_tasks: axl/getCCMVersion.yml
+
+    - name: Add new line
+      include_tasks: axl/addLine.yml
+
+    - name: Add new phone
+      include_tasks: axl/addPhone.yml
+
+    - name: Add new user
+      include_tasks: axl/addUser.yml
+      

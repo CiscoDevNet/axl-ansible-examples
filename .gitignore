@@ -1,2 +1,3 @@
 venv/
 inventory.yml
+__pycache__/

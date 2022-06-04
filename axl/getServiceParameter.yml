@@ -1,0 +1,50 @@
+---
+- name: Get Service Parameter
+  uri:
+    url: "https://{{ ansible_host }}:8443/axl/"
+    method: POST
+    headers:
+      Content-Type: text/xml
+      SOAPAction: '"CUCM:DB ver={{ axl_version }} getServiceParameter"'
+    force_basic_auth: yes
+    user: "{{ hostvars[ansible_host].axl_user }}"
+    password: "{{ hostvars[ansible_host].axl_password }}"
+    body: >
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.cisco.com/AXL/API/{{ axl_version }}">
+          <soapenv:Body>
+            <ns:getServiceParameter sequence="1">
+              <processNodeName>EnterpriseWideData</processNodeName>
+              <name>{{ parameter_name }}</name>
+              <service>{{ service }}</service>
+            </ns:getServiceParameter>
+          </soapenv:Body>
+      </soapenv:Envelope>
+    validate_certs: false
+    return_content: yes
+    status_code: 200
+  register: response
+  
+- name: Get service parameter value
+  xml:
+      xmlstring: "{{ response.content }}"
+      xpath: //value
+      content: text
+  register: param_value
+
+- name: Get service parameter valueType
+  xml:
+      xmlstring: "{{ response.content }}"
+      xpath: //valueType
+      content: text
+  register: param_type
+
+- name: Save service parameter dict
+  set_fact:
+    service_parameter:
+      processNodeName: EnterpriseWideData
+      name: "{{ parameter_name }}"
+      service: "{{ service }}"
+      value: "{{ param_value.matches[0].value }}"
+      valueType: "{{ param_type.matches[0].valueType }}"
+
+- debug: var=service_parameter

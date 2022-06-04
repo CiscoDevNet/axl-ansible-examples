@@ -1,0 +1,21 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+  
+  vars_prompt:
+    - name: dn
+      prompt: Enter new directory number (e.g. 1001)
+      private: no
+    - name: routePartition
+      prompt: Enter the partition name (press enter for no partition)
+      private: no
+
+  tasks:
+    - name: Get CUCM version
+      include_tasks: axl/getCCMVersion.yml
+
+    - name: Add a new line
+      include_tasks: axl/addLine.yml
+      
+      

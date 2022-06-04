@@ -1,4 +1,4 @@
-userid,lastname,password,pin,phonename,model,dn,partition
+userid,lastName,password,pin,device_name,model,dn,routePartition
 testUser1,testUser1,password,123456,SEP000000000001,Cisco 7975,1001,
 testUser2,testUser2,password,123456,SEP000000000002,Cisco 7975,1002,
 testUser3,testUser3,password,123456,SEP000000000003,Cisco 7975,1003,

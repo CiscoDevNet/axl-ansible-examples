@@ -1,0 +1,26 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+
+  vars_prompt:
+    - name: device_name
+      prompt: Enter device name (e.g. SEP123456789012)
+      private: no
+    - name: model
+      prompt: Enter device model (e.g. Cisco 7975)
+      private: no
+    - name: dn
+      prompt: Enter the line directory number (e.g. 1001)
+      private: no
+    - name: routePartition
+      prompt: Enter the line partition (press enter for none)
+      private: no
+
+  tasks:
+    - name: Get CUCM version
+      include_tasks: axl/getCCMVersion.yml
+
+    - name: Add the new phone
+      include_tasks: axl/addPhone.yml
+      

@@ -1,0 +1,7 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Get CUCM version (active partition)
+      include_tasks: axl/getCCMVersion.yml

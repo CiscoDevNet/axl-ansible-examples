@@ -1,0 +1,24 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+  vars_prompt:
+    - name: cli_command
+      prompt: Enter the CLI command to execute (single line only)
+      private: no
+
+  tasks:
+    - name: Execute CLI command
+      cisco_vos_cli:
+        cli_address: "{{ ansible_host }}"
+        cli_user: "{{ hostvars[ansible_host].cli_user }}"
+        cli_password: "{{ hostvars[ansible_host].cli_password }}"
+        cli_command: "{{ cli_command }}"
+      register: response
+
+    - debug: 
+        msg: |
+          Raw: {{ response.output['raw'] }}"
+          Tokenized: {{ response.output['tokenized'] | to_nice_json }}"
+
+    

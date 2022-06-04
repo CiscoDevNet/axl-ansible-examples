@@ -1,0 +1,24 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Execute CLI command
+      cisco_vos_cli:
+        cli_address: "{{ ansible_host }}"
+        cli_user: "{{ hostvars[ansible_host].cli_user }}"
+        cli_password: "{{ hostvars[ansible_host].cli_password }}"
+        cli_command: set cli session timeout 30
+        cli_responses:
+          - expect: "Continue (y/n)?"
+            response: y
+            timeout: 10          
+      register: response
+
+    - debug: 
+        msg: |
+          Raw: {{ response.output['raw'] }}
+          Tokenized: {{ response.output['tokenized'] | to_nice_json }}
+
+    

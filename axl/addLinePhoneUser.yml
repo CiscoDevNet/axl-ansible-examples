@@ -1,0 +1,12 @@
+---
+- name: Get CUCM/AXL versions
+  include_tasks: axl/getCCMVersion.yml
+
+- name: Add new line
+  include_tasks: axl/addLine.yml
+
+- name: Add new phone
+  include_tasks: axl/addPhone.yml
+
+- name: Add new user
+  include_tasks: axl/addUser.yml

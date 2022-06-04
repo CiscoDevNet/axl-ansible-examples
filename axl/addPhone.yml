@@ -1,0 +1,45 @@
+---
+- name: Add phone with line
+  uri:
+    url: "https://{{ ansible_host }}:8443/axl/"
+    method: POST
+    headers:
+      Content-Type: text/xml
+      SOAPAction: '"CUCM:DB ver={{ axl_version }} addPhone"'
+    force_basic_auth: yes
+    user: "{{ hostvars[ansible_host].axl_user }}"
+    password: "{{ hostvars[ansible_host].axl_password }}"
+    body: >-
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.cisco.com/AXL/API/{{ axl_version }}">
+        <soapenv:Body>
+          <ns:addPhone sequence="1">
+            <phone>
+              <name>{{ device_name }}</name>
+              <product>{{ model }}</product>
+              <model>{{ model }}</model>
+              <class>Phone</class>
+              <protocol>SIP</protocol>
+              <protocolSide>User</protocolSide>
+              <callingSearchSpaceName/>
+              <devicePoolName>Default</devicePoolName>
+              <lines>
+                <line>
+                  <dirn>
+                    <pattern>{{ dn }}</pattern>
+                    <routePartition>{{ routePartition }}</routePartition>
+                  </dirn>
+                <index>1</index>
+                </line>
+              </lines>
+            </phone>
+          </ns:addPhone>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    validate_certs: false
+    return_content: yes
+    status_code: 
+      - 200
+      - 500
+  register: response
+  changed_when: response.status == 200
+  failed_when: response.status == 500 and '<axlcode>-239' not in response.content
