@@ -1,3 +1,5 @@
 venv/
 inventory.yml
 __pycache__/
+.vscode/
+QUERY_RESULTS.csv

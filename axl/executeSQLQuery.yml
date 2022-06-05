@@ -1,0 +1,34 @@
+---
+- name: Execute SQL Query
+  uri:
+    url: "https://{{ ansible_host }}:8443/axl/"
+    method: POST
+    headers:
+      Content-Type: text/xml
+      SOAPAction: '"CUCM:DB ver={{ axl_version }}  executeSQLQuery"'
+    force_basic_auth: yes
+    user: "{{ hostvars[ansible_host].axl_user }}"
+    password: "{{ hostvars[ansible_host].axl_password }}"
+    body: >-
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.cisco.com/AXL/API/{{ axl_version }}">
+        <soapenv:Body>
+            <ns:executeSQLQuery sequence="1">
+              <sql>{{ sql }}</sql>
+            </ns:executeSQLQuery>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    validate_certs: false
+    return_content: yes
+    status_code: 
+      - 200
+  register: axl_response
+
+- debug:
+    msg: "{{ axl_response.content }}"
+
+- debug:
+    msg: "{{ axl_response.content | axlquery2list }}"
+    
+- name: Parse results
+  set_fact:
+    rows: "{{ axl_response.content | axlquery2list }}"

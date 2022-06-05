@@ -1,0 +1,23 @@
+---
+- hosts: HQCluster
+  connection: local
+  gather_facts: no
+
+  vars_prompt:
+    - name: sql
+      prompt: Enter the SQL query to execute
+      private: no
+
+  tasks:
+    - name: Get CUCM version
+      include_tasks: axl/getCCMVersion.yml
+
+    - name: Execute SQL Query
+      include_tasks: axl/executeSQLQuery.yml
+
+    - debug: var=rows
+
+    - name: Convert to .csv and write to file
+      copy:
+        content: "{{ rows | axlquery2csv }}"
+        dest: "QUERY_RESULTS.csv"
