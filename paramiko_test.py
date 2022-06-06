@@ -5,7 +5,7 @@ import sys
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 try:
-    ssh.connect(hostname='sjds-cucm14.cisco.com', username='Administrator', password='ciscopsdt', timeout=30, look_for_keys=False)        
+    ssh.connect(hostname='hq-cucm-pub.abc.inc', username='administrator', password='ciscopsdt', timeout=30, look_for_keys=False)        
 except Exception as e:
     pass
 
@@ -37,9 +37,13 @@ try:
             output += interact.current_output
     interact.expect('admin:')
     output += interact.current_output
+    tokens = output.splitlines()
+    tokens = tokens[tokens.index(f'admin:{cli_command}')+1:-1]
+    tokens[:]=[line.split() for line in tokens]    
     ssh.close()
 except Exception as e:
     print(f'Error executing CLI command: {e}')
     sys.exit(1)
 
 print(output)
+print(tokens)

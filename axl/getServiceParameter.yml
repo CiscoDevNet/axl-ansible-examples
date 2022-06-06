@@ -46,5 +46,3 @@
       service: "{{ service }}"
       value: "{{ param_value.matches[0].value }}"
       valueType: "{{ param_type.matches[0].valueType }}"
-
-- debug: var=service_parameter

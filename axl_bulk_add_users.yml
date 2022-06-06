@@ -1,12 +1,12 @@
 ---
-- hosts: HQCluster
+- hosts: publisher
   connection: local
   gather_facts: no
 
   tasks:
     - name: Read CSV data
       read_csv:
-        path: DATA.csv
+        path: USER_DATA.csv
       register: csv_data
 
     - name: Add bulk users

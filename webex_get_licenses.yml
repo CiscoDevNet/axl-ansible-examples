@@ -1,0 +1,31 @@
+---
+- hosts: WebexOrgs
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Retrieve license counts
+      vars:
+        secret: "secret=oauthapp/creds/{{ credential }} token={{ lookup('env','VAULT_TOKEN') }} url={{ lookup('env','VAULT_ADDR') }}"
+        credentials: "{{ lookup('hashi_vault', secret) }}"
+        webex_token: "{{ credentials | json_query('access_token') }}"
+      uri:
+        url: "https://webexapis.com/v1/licenses?{{ org_id }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ webex_token }}"
+        return_content: yes
+        status_code: 
+          - 200
+      register: response
+
+    - file:
+        state: absent
+        path: LICENSE_REPORT.txt
+
+    - lineinfile:
+        create: True
+        path: LICENSE_REPORT.txt
+        line: "{{ item[0] }}: {{ item[1] }}"
+      loop: "{{ response.json | json_query('items[*].[name,totalUnits]') }}"
+      no_log: True

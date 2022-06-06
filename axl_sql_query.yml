@@ -1,5 +1,5 @@
 ---
-- hosts: HQCluster
+- hosts: publisher
   connection: local
   gather_facts: no
 
@@ -14,8 +14,6 @@
 
     - name: Execute SQL Query
       include_tasks: axl/executeSQLQuery.yml
-
-    - debug: var=rows
 
     - name: Convert to .csv and write to file
       copy:

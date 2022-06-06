@@ -3,3 +3,5 @@ inventory.yml
 __pycache__/
 .vscode/
 QUERY_RESULTS.csv
+LICENSE_REPORT.txt
+/vault/plugins/oauthapp

@@ -46,7 +46,7 @@ requirements:
 
 EXAMPLES = '''
 - name: Get CUCM DB Replication status 
-  hosts: HQCluster
+  hosts: hosts
   connection: local
   gather_facts: no
   tasks:
@@ -66,13 +66,11 @@ EXAMPLES = '''
 '''
 
 from secrets import token_bytes
-import paramiko, sys, os, json, re
+import paramiko
 from paramiko_expect import SSHClientInteraction
 from ansible.module_utils.basic import AnsibleModule
-import re
 
 def main():
-    debug_strings=[]
     fields = {'cli_address': {'required': True, 'type': 'str'},
               'cli_user': {'required': True, 'type': 'str'},
               'cli_password': {'required': True, 'type': 'str', "no_log": True},
@@ -116,7 +114,7 @@ def main():
         module.fail_json(msg='CLI command did not execute successfully', output=output)
 
     tokens = output.splitlines()
-    tokens = tokens[10:-1]
+    tokens = tokens[tokens.index(f'admin:{cli_command}')+1:-1]
     tokens[:]=[line.split() for line in tokens]
 
     module.exit_json(output={'raw': output, 'tokenized': tokens})

@@ -1,8 +1,19 @@
 ---
 HQCluster:
   hosts:
-    cucm.example.com: 
-      axl_user: 
-      axl_password: 
-      cli_user: 
-      cli_password: 
+    pub.example.com:
+      axl_user: Administrator
+      axl_password:
+      cli_user:
+      cli_password:
+    sub.example.com:
+      axl_user:
+      axl_password:
+      cli_user:
+      cli_password:
+
+WebexOrgs:
+  hosts:
+    example.webex.com:
+      org_id:
+      credential:

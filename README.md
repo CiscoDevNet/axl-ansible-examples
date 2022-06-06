@@ -25,20 +25,22 @@ The concepts and techniques shown can be extended to enable automated management
 
 ## Available samples
 
-* `add_line_monolithic.yml` - Demonstrates adding a single line with the basic built-in Ansible `uri` module ( `<addLine>`).
+* `axl_add_line_simple.yml` - Demonstrates adding a single line with the basic built-in Ansible `uri` module ( `<addLine>`).
 
-* `axl_version` - Retrieves the node product and AXL versions (`<getCCMVersion>`).
+* `axl_cucm_version_simple.yml` - Retrieve CUCM and AXL versions in a single playbook.
 
-* `axL_new_line.yml` - Add a new line (`<addLine>`).
+* `axl_cucm_version.yml` - Retrieves the node product and AXL versions.  Uses sub-task (`<getCCMVersion>`).
 
-* `axl_new_phone.yml` - Add a new phone (`<addLine>`).
+* `axL_add_line.yml` - Add a new line (`<addLine>`).
 
-* `axl_new_user.yml` - Add a new user (`<addUser>`).
+* `axl_add_phone.yml` - Add a new phone (`<addLine>`).
+
+* `axl_add_user.yml` - Add a new user (`<addUser>`).
 
 * `axl_add_line_phone_user.yml` - Compose multiple sub-tasks to add a user/phone/line in one playbook.
 
 * `axl_bulk_add_users.yml` - Bulk-add users with associated phones/lines, as retrieved from a `.csv` file.
-
+ 
 * `cisco_vos_cli.py` - Custom Ansible module using Python/[Paramiko](https://www.paramiko.org/) to run arbitrary commands on a node and parse/return the output.
 
 * `cli_show_version.yml` - Run a CLI command to get the active version and display/parse the output.

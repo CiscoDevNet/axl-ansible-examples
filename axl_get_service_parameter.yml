@@ -1,7 +1,6 @@
 ---
   # Run with command line params: 
   #   ansible-playbook axl_service_parameter.yml -e "service='Cisco CallManager' parameter_name=HoldReversionDuration"
-
 - hosts: HQCluster
   connection: local
   gather_facts: no
@@ -20,3 +19,6 @@
 
     - name: getServiceParameter.yml
       include_tasks: axl/getServiceParameter.yml
+
+    - debug:
+        msg: "{{ service_parameter['name'] }} = {{ service_parameter['value'] }}"

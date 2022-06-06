@@ -1,5 +1,5 @@
 ---
-- hosts: HQCluster
+- hosts: publisher
   connection: local
   gather_facts: no
 
@@ -8,6 +8,7 @@
       vars:
         dn: "1001"
         routePartition: ""
+        axl_version: 14.0
       uri:
         url: "https://{{ ansible_host }}:8443/axl/"
         method: POST

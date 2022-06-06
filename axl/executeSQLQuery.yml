@@ -23,12 +23,6 @@
       - 200
   register: axl_response
 
-- debug:
-    msg: "{{ axl_response.content }}"
-
-- debug:
-    msg: "{{ axl_response.content | axlquery2list }}"
-    
-- name: Parse results
+- name: Parse and set results
   set_fact:
     rows: "{{ axl_response.content | axlquery2list }}"

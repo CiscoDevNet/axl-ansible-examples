@@ -1,0 +1,27 @@
+vault server -dev -dev-plugin-dir=./vault-plugins
+
+---------------------
+
+export VAULT_ADDR=http://127.0.0.1:8200
+
+vault login
+
+vault secrets enable oauthapp
+
+vault write oauthapp/servers/webex-adminapp \
+provider=custom client_id=Cb60221065f447b1b42a19695d1978a02a79a1b58a1fb428b3c8b80ecce5529ac \
+client_secret=6a24da2bfe0868fbc9d73969063b1dccfd9441a127fe3d0b4022c909fcd5b951 \
+provider_options=auth_code_url="https://webexapis.com/v1/authorize" \
+provider_options=token_url="https://webexapis.com/v1/access_token"
+
+vault write oauthapp/auth-code-url \
+server=webex-adminapp \
+redirect_url="http://0.0.0.0" scopes="spark-admin:licenses_read" \
+state=12345
+
+vault write oauthapp/creds/testauth \
+server=webex-adminapp \
+code={code} \
+redirect_url="http://0.0.0.0"
+
+vault read oauthapp/creds/testauth
