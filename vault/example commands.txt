@@ -1,8 +1,10 @@
-vault server -dev -dev-plugin-dir=./vault-plugins
+vault server -dev -dev-plugin-dir=./vault/plugins
 
 ---------------------
 
 export VAULT_ADDR=http://127.0.0.1:8200
+
+export VAULT_TOKEN=
 
 vault login
 

@@ -5,3 +5,4 @@ __pycache__/
 QUERY_RESULTS.csv
 LICENSE_REPORT.txt
 /vault/plugins/oauthapp
+inventory_*

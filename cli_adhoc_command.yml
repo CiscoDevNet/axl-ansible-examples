@@ -1,5 +1,5 @@
 ---
-- hosts: publisher
+- hosts: HQCluster
   connection: local
   gather_facts: no
   vars_prompt:

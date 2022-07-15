@@ -17,7 +17,7 @@ The concepts and techniques shown can be extended to enable automated management
 - Python 3.10.4
 - CUCM 14
 
-> **Note:** this project was development on Linux.  While core concepts and most code should port to Windows/Mac well, some differences in Ansible implentation/capabilities may require workarounds.
+> **Note:** this project was developed on Linux.  While core concepts and most code should port to Windows/Mac well, some differences in Ansible implentation/capabilities may require workarounds.
 
 ## Pre-requisites
 
