@@ -6,7 +6,7 @@
     headers:
       Content-Type: text/xml
       SOAPAction: '"CUCM:DB ver={{ axl_version }} addUser"'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ hostvars[inventory_hostname].axl_user }}"
     password: "{{ hostvars[inventory_hostname].axl_password }}"
     body: >-
@@ -14,7 +14,7 @@
         <soapenv:Body>
           <ns:addUser sequence="1">
             <user>
-              <lastName>{{ lastName }}</lastName>
+              <lastName>{{ lastname }}</lastName>
               <userid>{{ userid }}</userid>
               <password>{{ password }}</password>
               <pin>{{ pin }}</pin>
@@ -26,8 +26,8 @@
         </soapenv:Body>
       </soapenv:Envelope>
     validate_certs: false
-    return_content: yes
-    status_code: 
+    return_content: true
+    status_code:
       - 200
       - 500
   register: response

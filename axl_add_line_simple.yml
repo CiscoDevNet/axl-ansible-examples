@@ -1,21 +1,22 @@
 ---
-- hosts: HQCluster
+- name: AXL Add Line (Simple)
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Add Line
       vars:
         dn: "1001"
-        routePartition: ""
+        routepartition: ""
         axl_version: 14.0
-      uri:
+      ansible.builtin.uri:
         url: "https://{{ ansible_host }}:8443/axl/"
         method: POST
         headers:
           Content-Type: text/xml
           SOAPAction: '"CUCM:DB ver={{ axl_version }} addLine"'
-        force_basic_auth: yes
+        force_basic_auth: true
         user: "{{ hostvars[ansible_host].axl_user }}"
         password: "{{ hostvars[ansible_host].axl_password }}"
         body: >-
@@ -24,16 +25,16 @@
               <ns:addLine sequence="1">
                 <line>
                   <pattern>{{ dn }}</pattern>
-                  <routePartitionName>{{ routePartition }}</routePartitionName>
+                  <routePartitionName>{{ routepartition }}</routePartitionName>
                 </line>
               </ns:addLine>
             </soapenv:Body>
           </soapenv:Envelope>
         validate_certs: false
-        return_content: yes
-        status_code: 
+        return_content: true
+        status_code:
           - 200
           - 500
       register: response
       changed_when: response.status == 200
-      failed_when: response.status == 500 and '<axlcode>4052' not in response.content      
+      failed_when: response.status == 500 and '<axlcode>4052' in response.content

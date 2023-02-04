@@ -1,11 +1,11 @@
 ---
 - name: Get CUCM version
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ ansible_host }}:8443/axl/"
     method: POST
     headers:
       Content-Type: text/xml
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ hostvars[ansible_host].axl_user }}"
     password: "{{ hostvars[ansible_host].axl_password }}"
     body: >
@@ -17,25 +17,26 @@
         </soapenv:Body>
       </soapenv:Envelope>
     validate_certs: false
-    return_content: yes
+    return_content: true
     status_code: 200
   register: response
-  
+
 - name: Get <version> element
-  xml:
-      xmlstring: "{{ response.content }}"
-      xpath: //version
-      content: text
+  community.general.xml:
+    xmlstring: "{{ response.content }}"
+    xpath: //version
+    content: text
   register: element
   delegate_to: localhost
 
 - name: Extract and save the CUCM version string
-  set_fact:
+  ansible.builtin.set_fact:
     cucm_version: "{{ element.matches[0].version }}"
 
 - name: Extract and save the aXL version string
-  set_fact:
+  ansible.builtin.set_fact:
     axl_version: "{{ cucm_version | regex_search('(^\\d+\\.\\d+)\\.', '\\1') | first }}"
 
-- debug:
+- name: Debug
+  ansible.builtin.debug:
     msg: "CUCM version: {{ cucm_version }} / AXL version: {{ axl_version }}"

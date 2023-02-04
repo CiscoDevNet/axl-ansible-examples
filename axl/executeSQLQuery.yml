@@ -1,12 +1,12 @@
 ---
 - name: Execute SQL Query
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ ansible_host }}:8443/axl/"
     method: POST
     headers:
       Content-Type: text/xml
       SOAPAction: '"CUCM:DB ver={{ axl_version }}  executeSQLQuery"'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ hostvars[ansible_host].axl_user }}"
     password: "{{ hostvars[ansible_host].axl_password }}"
     body: >-
@@ -18,11 +18,11 @@
         </soapenv:Body>
       </soapenv:Envelope>
     validate_certs: false
-    return_content: yes
-    status_code: 
+    return_content: true
+    status_code:
       - 200
   register: axl_response
 
 - name: Parse and set results
-  set_fact:
+  ansible.builtin.set_fact:
     rows: "{{ axl_response.content | axlquery2list }}"

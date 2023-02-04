@@ -76,7 +76,7 @@ The concepts and techniques shown can be extended to enable automated management
   You will be prompted for needed values (e.g. directory number/partition) if not provided via `--extra-vars`:
 
   ```bash
-  ansible-playbook axl_new_line.yml --extra-vars "dn=1001 routePartition=''"
+  ansible-playbook axl_new_line.yml --extra-vars "dn=1001 routepartition=''"
   ```
     
  ## Hints

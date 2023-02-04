@@ -1,28 +1,28 @@
 ---
-- hosts: HQCluster
+- name: AXL Add User
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars_prompt:
     - name: userid
       prompt: Enter userid
-      private: no
-    - name: lastName
+      private: false
+    - name: lastname
       prompt: Enter last name
-      private: no
+      private: false
     - name: password
       prompt: Enter password
-      private: no
+      private: false
     - name: pin
       prompt: Enter user PIN (numbers only)
-      private: no
+      private: false
     - name: device_name
       prompt: Enter the user's device name (e.g. SEP123456789012)
-      private: no
+      private: false
 
   tasks:
     - name: Get CUCM version
-      include_tasks: axl/getCCMVersion.yml
+      ansible.builtin.include_tasks: axl/getCCMVersion.yml
 
     - name: Add the new user
-      include_tasks: axl/addUser.yml
-      
+      ansible.builtin.include_tasks: axl/addUser.yml

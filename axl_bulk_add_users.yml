@@ -1,23 +1,24 @@
 ---
-- hosts: HQCluster
+- name: AXL Bulk Add Users
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Read CSV data
-      read_csv:
+      community.general.read_csv:
         path: USER_DATA.csv
       register: csv_data
 
     - name: Add bulk users
       vars:
         dn: "{{ item.dn }}"
-        routePartition: "{{ item.routePartition }}"
+        routepartition: "{{ item.routepartition }}"
         device_name: "{{ item.device_name }}"
         model: "{{ item.model }}"
         userid: "{{ item.userid }}"
-        lastName: "{{ item.lastName }}"
+        lastname: "{{ item.lastname }}"
         password: "{{ item.password }}"
         pin: "{{ item.pin }}"
-      include_tasks: axl/addLinePhoneUser.yml
+      ansible.builtin.include_tasks: axl/addLinePhoneUser.yml
       loop: "{{ csv_data.list }}"

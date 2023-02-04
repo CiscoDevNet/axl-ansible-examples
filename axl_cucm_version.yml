@@ -1,7 +1,8 @@
 ---
-- hosts: HQCluster
+- name: AXL CUCM Version
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: Get CUCM version (active partition)
-      include_tasks: axl/getCCMVersion.yml
+      ansible.builtin.include_tasks: axl/getCCMVersion.yml

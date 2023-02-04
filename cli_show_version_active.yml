@@ -1,7 +1,8 @@
 ---
-- hosts: HQCluster
+- name: CLI Multiple Commands
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Execute CLI command
@@ -12,10 +13,9 @@
         cli_command: show version active
       register: response
 
-    - debug: 
+    - name: Debug
+      ansible.builtin.debug:
         msg: |
           Raw: {{ response.output['raw'] }}
           Tokenized: {{ response.output['tokenized'] | to_nice_json }}
           Active version: {{ response.output['tokenized'][0][3] }}
-
-    

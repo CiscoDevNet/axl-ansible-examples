@@ -6,7 +6,7 @@
     headers:
       Content-Type: text/xml
       SOAPAction: '"CUCM:DB ver={{ axl_version }} addPhone"'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ hostvars[ansible_host].axl_user }}"
     password: "{{ hostvars[ansible_host].axl_password }}"
     body: >-
@@ -26,7 +26,7 @@
                 <line>
                   <dirn>
                     <pattern>{{ dn }}</pattern>
-                    <routePartition>{{ routePartition }}</routePartition>
+                    <routePartition>{{ routepartition }}</routePartition>
                   </dirn>
                 <index>1</index>
                 </line>
@@ -36,8 +36,8 @@
         </soapenv:Body>
       </soapenv:Envelope>
     validate_certs: false
-    return_content: yes
-    status_code: 
+    return_content: true
+    status_code:
       - 200
       - 500
   register: response

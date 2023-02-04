@@ -1,24 +1,26 @@
 ---
-  # Run with command line params: 
-  #   ansible-playbook axl_service_parameter.yml -e "service='Cisco CallManager' parameter_name=HoldReversionDuration"
-- hosts: HQCluster
+  # Run with command line params:
+  #   ansible-playbook axl_get_service_parameter.yml -e "service='Cisco CallManager' parameter_name=HoldReversionDuration"
+- name: AXL Get Service Parameters
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   vars_prompt:
-  - name: service
-    prompt: "Enter the service name (e.g.: Cisco CallManager)"
-    private: no
-  - name: parameter_name
-    prompt: "Enter the service parameter name (e.g.: HoldReversionDuration)"
-    private: no
+    - name: service
+      prompt: "Enter the service name (e.g.: Cisco CallManager)"
+      private: false
+    - name: parameter_name
+      prompt: "Enter the service parameter name (e.g.: HoldReversionDuration)"
+      private: false
 
   tasks:
     - name: Get CUCM version
-      include_tasks: axl/getCCMVersion.yml
+      ansible.builtin.include_tasks: axl/getCCMVersion.yml
 
-    - name: getServiceParameter.yml
-      include_tasks: axl/getServiceParameter.yml
+    - name: GetServiceParameter.yml
+      ansible.builtin.include_tasks: axl/getServiceParameter.yml
 
-    - debug:
+    - name: Debug
+      ansible.builtin.debug:
         msg: "{{ service_parameter['name'] }} = {{ service_parameter['value'] }}"

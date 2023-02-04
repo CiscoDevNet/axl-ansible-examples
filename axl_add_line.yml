@@ -1,21 +1,20 @@
 ---
-- hosts: HQCluster
+- name: AXL Add Line
+  hosts: HQCluster
   connection: local
-  gather_facts: no
-  
+  gather_facts: false
+
   vars_prompt:
     - name: dn
       prompt: Enter new directory number (e.g. 1001)
-      private: no
-    - name: routePartition
-      prompt: Enter the partition name (press enter for no partition)
-      private: no
+      private: false
+    - name: routepartition
+      prompt: Enter the partition name (press enter for none)
+      private: false
 
   tasks:
     - name: Get CUCM version
-      include_tasks: axl/getCCMVersion.yml
+      ansible.builtin.include_tasks: axl/getCCMVersion.yml
 
     - name: Add a new line
-      include_tasks: axl/addLine.yml
-      
-      
+      ansible.builtin.include_tasks: axl/addLine.yml

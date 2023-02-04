@@ -1,7 +1,8 @@
 ---
-- hosts: HQCluster
+- name: CLI Set CLI Session Timeout
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Execute CLI command
@@ -13,12 +14,11 @@
         cli_responses:
           - expect: "Continue (y/n)?"
             response: y
-            timeout: 10          
+            timeout: 10
       register: response
 
-    - debug: 
+    - name: Debug
+      ansible.builtin.debug:
         msg: |
           Raw: {{ response.output['raw'] }}
           Tokenized: {{ response.output['tokenized'] | to_nice_json }}
-
-    

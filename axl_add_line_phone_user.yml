@@ -1,44 +1,44 @@
 ---
-- hosts: HQCluster
+- name: AXL Add Line/Phone/User
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   vars_prompt:
     - name: userid
       prompt: Enter userid
-      private: no
-    - name: lastName
+      private: false
+    - name: lastname
       prompt: Enter last name
-      private: no
+      private: false
     - name: password
       prompt: Enter password
-      private: no
+      private: false
     - name: pin
       prompt: Enter user PIN (numbers only)
-      private: no
+      private: false
     - name: device_name
       prompt: Enter the user's device name (e.g. SEP123456789012)
-      private: no
+      private: false
     - name: model
       prompt: Enter the device model (e.g. Cisco 7975)
-      private: no
+      private: false
     - name: dn
       prompt: Enter new directory number (e.g. 1001)
-      private: no
-    - name: routePartition
-      prompt: Enter the partition name (press enter for no partition)
-      private: no
+      private: false
+    - name: routepartition
+      prompt: Enter the partition name (press enter for false partition)
+      private: false
 
   tasks:
     - name: Get CUCM/AXL versions
-      include_tasks: axl/getCCMVersion.yml
+      ansible.builtin.include_tasks: axl/getCCMVersion.yml
 
     - name: Add new line
-      include_tasks: axl/addLine.yml
+      ansible.builtin.include_tasks: axl/addLine.yml
 
     - name: Add new phone
-      include_tasks: axl/addPhone.yml
+      ansible.builtin.include_tasks: axl/addPhone.yml
 
     - name: Add new user
-      include_tasks: axl/addUser.yml
-      
+      ansible.builtin.include_tasks: axl/addUser.yml

@@ -1,12 +1,12 @@
 ---
 - name: Get Service Parameter
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ ansible_host }}:8443/axl/"
     method: POST
     headers:
       Content-Type: text/xml
       SOAPAction: '"CUCM:DB ver={{ axl_version }} getServiceParameter"'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ hostvars[ansible_host].axl_user }}"
     password: "{{ hostvars[ansible_host].axl_password }}"
     body: >
@@ -20,22 +20,22 @@
           </soapenv:Body>
       </soapenv:Envelope>
     validate_certs: false
-    return_content: yes
+    return_content: true
     status_code: 200
   register: response
-  
+
 - name: Get service parameter value
   xml:
-      xmlstring: "{{ response.content }}"
-      xpath: //value
-      content: text
+    xmlstring: "{{ response.content }}"
+    xpath: //value
+    content: text
   register: param_value
 
 - name: Get service parameter valueType
   xml:
-      xmlstring: "{{ response.content }}"
-      xpath: //valueType
-      content: text
+    xmlstring: "{{ response.content }}"
+    xpath: //valueType
+    content: text
   register: param_type
 
 - name: Save service parameter dict

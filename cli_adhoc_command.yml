@@ -1,11 +1,12 @@
 ---
-- hosts: HQCluster
+- name: CLI Ad Hoc Command
+  hosts: HQCluster
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars_prompt:
     - name: cli_command
       prompt: Enter the CLI command to execute (single line only)
-      private: no
+      private: false
 
   tasks:
     - name: Execute CLI command
@@ -16,9 +17,8 @@
         cli_command: "{{ cli_command }}"
       register: response
 
-    - debug: 
+    - name: Debug
+      ansible.builtin.debug:
         msg: |
           Raw: {{ response.output['raw'] }}"
           Tokenized: {{ response.output['tokenized'] | to_nice_json }}"
-
-    
