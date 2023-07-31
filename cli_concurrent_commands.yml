@@ -55,8 +55,3 @@
         state: absent
       loop: "{{ response.results }}"
 
-    # - name: Debug
-    #   ansible.builtin.debug:
-    #     msg: |
-    #       Raw: {{ item.output['raw'] }}
-    #   loop: "{{ response.results }}"
