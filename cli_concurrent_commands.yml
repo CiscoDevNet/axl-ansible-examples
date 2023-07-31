@@ -1,0 +1,62 @@
+---
+- name: CLI Multiple Concurrent Commands
+  # Run like: ansible-playbook cli_concurrent_commands.yml --extra-vars "command_list='show date:show status'"
+  hosts: HQCluster
+  connection: local
+  gather_facts: false
+
+  vars:
+    command_results:
+
+  tasks:
+    - name: Execute CLI command
+      cisco_vos_cli:
+        cli_address: "{{ ansible_host }}"
+        cli_user: "{{ hostvars[ansible_host].cli_user }}"
+        cli_password: "{{ hostvars[ansible_host].cli_password }}"
+        cli_command: "{{ item }}"
+      no_log: true
+      loop: "{{ command_list.split(':') }}"
+      register: response
+      async: 60
+      poll: 0
+
+    - name: Wait for tasks to finish
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      no_log: true
+      register: task_status
+      retries: 20
+      delay: 2
+      until: task_status.finished
+      loop: "{{ response.results }}"
+
+    - name: Gather result file data
+      ansible.builtin.set_fact:
+        result_file_data: |-
+          [
+            {% for result in response.results %}
+              {{ lookup('ansible.builtin.file', result.results_file) }},
+            {% endfor %}
+          ]
+
+    - name: Debug results output
+      ansible.builtin.debug:
+        msg: |-
+          Command: "{{ item.invocation.module_args.cli_command }}"
+          Output: "{{ item.output.raw }}"
+      loop: "{{ result_file_data }}"
+      loop_control:
+        label: "{{ item.invocation.module_args.cli_address }}"
+
+    - name: Clean up results files
+      ansible.builtin.file:
+        path: "{{ item.results_file }}"
+        state: absent
+      loop: "{{ response.results }}"
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     msg: |
+    #       Raw: {{ item.output['raw'] }}
+    #   loop: "{{ response.results }}"

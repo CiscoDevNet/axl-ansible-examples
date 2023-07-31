@@ -1,5 +1,5 @@
 ---
-- name: CLI Multiple Commands
+- name: CLI Show Version
   hosts: HQCluster
   connection: local
   gather_facts: false

@@ -51,6 +51,8 @@ The concepts and techniques shown can be extended to enable automated management
 
 * `paramiko_test.py` - Stand-alone version of the `cisco_vos_cli.py` module (easier to debug).
 
+* `cli_concurrent_commands.yml` - Pass multiple "`:`" delimited commands, which will be executed across hosts using Ansible concurrent asynchronous actions.
+
 ## Getting started
 
 * Create/activate a Python virtual environment named `venv`:

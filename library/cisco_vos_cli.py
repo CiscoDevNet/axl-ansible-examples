@@ -2,7 +2,7 @@
 
 # Based on code from https://github.com/ponchotitlan/ansible_cucm_ssh_module (Alfonso Sandoval)
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: cisco_vos_cli
 short_description: Module to execute CLI commands on Cisco UC Voice Operating System (VOS) hosts
@@ -42,9 +42,9 @@ requirements:
     - ansible==2.9.12
     - paramiko==2.0.0
     - paramiko-expect==0.2.8
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get CUCM DB Replication status 
   hosts: hosts
   connection: local
@@ -63,61 +63,79 @@ EXAMPLES = '''
               newline: False
       register: result
     - debug: var=result
-'''
+"""
 
 from secrets import token_bytes
 import paramiko
 from paramiko_expect import SSHClientInteraction
 from ansible.module_utils.basic import AnsibleModule
 
+
 def main():
-    fields = {'cli_address': {'required': True, 'type': 'str'},
-              'cli_user': {'required': True, 'type': 'str'},
-              'cli_password': {'required': True, 'type': 'str', "no_log": True},
-              'cli_command': {'required': True, 'type': 'str'},
-              'cli_responses': {'required': False, 'type': 'list', 'elements': 'dict'}
+    fields = {
+        "cli_address": {"required": True, "type": "str"},
+        "cli_user": {"required": True, "type": "str"},
+        "cli_password": {"required": True, "type": "str", "no_log": True},
+        "cli_command": {"required": True, "type": "str"},
+        "cli_responses": {"required": False, "type": "list", "elements": "dict"},
     }
     module = AnsibleModule(argument_spec=fields)
 
-    cli_address, cli_user, cli_password, cli_command, cli_responses = module.params.values()
+    (
+        cli_address,
+        cli_user,
+        cli_password,
+        cli_command,
+        cli_responses,
+    ) = module.params.values()
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(hostname=cli_address, username=cli_user, password=cli_password, timeout=30, look_for_keys=False)        
+        ssh.connect(
+            hostname=cli_address,
+            username=cli_user,
+            password=cli_password,
+            timeout=30,
+            look_for_keys=False,
+        )
     except Exception as e:
-        module.fail_json(msg=f'Unable to establish CLI connection: {e}/{type(e)}')
+        module.fail_json(msg=f"Unable to establish CLI connection: {e}/{type(e)}")
 
     try:
-        interact = SSHClientInteraction(ssh, display=False) 
-        interact.expect('admin:')
+        interact = SSHClientInteraction(ssh, display=False)
+        interact.expect("admin:")
         interact.send(cli_command)
         output = interact.current_output
         if cli_responses is not None:
             for index, item in enumerate(cli_responses):
                 try:
-                    expect = item['expect']
-                    response = item['response']
-                    timeout = item.get('timeout')
-                    newline = '\n' if item.get('newline', True) else ''
+                    expect = item["expect"]
+                    response = item["response"]
+                    timeout = item.get("timeout")
+                    newline = "\n" if item.get("newline", True) else ""
                 except KeyError as e:
-                    module.fail_json(msg=f'Error: key {e} missing in cli_responses[{index}]')
+                    module.fail_json(
+                        msg=f"Error: key {e} missing in cli_responses[{index}]"
+                    )
                 interact.expect(expect, timeout=timeout)
                 interact.send(response, newline=newline)
                 output += interact.current_output
-        interact.expect('admin:')
+        interact.expect("admin:")
         output += interact.current_output
         ssh.close()
     except Exception as e:
-        module.fail_json(msg=f'Error executing CLI command: {e}')
+        module.fail_json(msg=f"Error executing CLI command: {e}")
 
-    if 'Executed command unsuccessfully' in output:
-        module.fail_json(msg='CLI command did not execute successfully', output=output)
+    if "Executed command unsuccessfully" in output:
+        module.fail_json(msg="CLI command did not execute successfully", output=output)
 
     tokens = output.splitlines()
-    tokens = tokens[tokens.index(f'admin:{cli_command}')+1:-1]
-    tokens[:]=[line.split() for line in tokens]
+    tokens = tokens[tokens.index(f"admin:{cli_command}") + 1 : -1]
+    tokens[:] = [line.split() for line in tokens]
 
-    module.exit_json(output={'raw': output, 'tokenized': tokens})
+    module.exit_json(output={"raw": output, "tokenized": tokens})
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
