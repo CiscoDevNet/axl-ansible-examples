@@ -6,6 +6,7 @@ class FilterModule(object):
         }
 
     def axlquery2csv(self, rows):
+        rows = rows if isinstance(rows, list) else [rows]
         if len(rows) < 1:
             return
         csv = ','.join( [ f'"{column_name}"' for column_name in list(rows[0].keys())] ) + '\n'

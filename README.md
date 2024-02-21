@@ -53,6 +53,8 @@ The concepts and techniques shown can be extended to enable automated management
 
 * `cli_concurrent_commands.yml` - Pass multiple "`:`" delimited commands, which will be executed across hosts using Ansible concurrent asynchronous actions.
 
+* `cli_utils_fips_enable.yml` - Via CLI, run `utils fips enable`; when prompted, respond with `no`.  Demonstrates using `character_delay` option to send a response as invidual characters separated by a short delay (required by this particular CLI command.)
+
 ## Getting started
 
 * Create/activate a Python virtual environment named `venv`:

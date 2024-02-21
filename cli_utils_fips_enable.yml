@@ -1,0 +1,27 @@
+---
+- name: CLI utils fips enable
+  hosts: HQCluster
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Execute CLI command
+      cisco_vos_cli:
+        cli_address: "{{ ansible_host }}"
+        cli_user: "{{ hostvars[ansible_host].cli_user }}"
+        cli_password: "{{ hostvars[ansible_host].cli_password }}"
+        cli_command: utils fips enable
+        cli_responses:
+          - expect: "Do you want to continue (yes/no) ? "
+            timeout: 10
+            response: "no"
+            character_delay: 0.5
+            newline: True
+
+      register: response
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: |
+          Raw: {{ response.output['raw'] }}
+          Tokenized: {{ response.output['tokenized'] | to_nice_json }}
