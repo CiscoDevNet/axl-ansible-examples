@@ -11,6 +11,7 @@ description:
     - Tokenizes by lines and white-space separated items in the CLI text output
     - Returns a list of lines, where each line is a list of white-space delimited tokens (as well as the full text response)
     - Please verify options and example for supported usage
+    - Note: "expect" values must be surrounded by single quotes and have regex reserved characters escaped: \(example\)
 author: 'David Staudt'
 options:
 # One or more of the following
@@ -26,6 +27,9 @@ options:
         description:
             - OS admin (CLI) user password
         required: true
+    cli_timeout:
+        description:
+            - Timeout to connect, receive initial CLI prompt (seconds), final CLI prompt
     cli_command:
         description:
             - Text of the CLI command to be executed
@@ -55,6 +59,7 @@ EXAMPLES = """
         cli_address: "{{ ansible_host }}"
         cli_user: "{{ hostvars[ansible_host].cli_user }}"
         cli_password: "{{ hostvars[ansible_host].cli_password }}"
+        cli_timeout: 30
         cli_command: utils fips enable
         cli_responses:
           - expect: "Do you want to continue (yes/no) ? "
@@ -70,11 +75,20 @@ from paramiko_expect import SSHClientInteraction
 from ansible.module_utils.basic import AnsibleModule
 from time import sleep
 
+
+class ExpectFailed(Exception):
+    def __init__(self, expect_expression):
+        self.expect_expression = expect_expression
+
+    pass
+
+
 def main():
     fields = {
         "cli_address": {"required": True, "type": "str"},
         "cli_user": {"required": True, "type": "str"},
         "cli_password": {"required": True, "type": "str", "no_log": True},
+        "cli_timeout": {"required": False, "type": "int"},
         "cli_command": {"required": True, "type": "str"},
         "cli_responses": {"required": False, "type": "list", "elements": "dict"},
     }
@@ -84,6 +98,7 @@ def main():
         cli_address,
         cli_user,
         cli_password,
+        cli_timeout,
         cli_command,
         cli_responses,
     ) = module.params.values()
@@ -95,15 +110,16 @@ def main():
             hostname=cli_address,
             username=cli_user,
             password=cli_password,
-            timeout=30,
+            timeout=cli_timeout if cli_timeout else 30,
             look_for_keys=False,
         )
     except Exception as e:
-        module.fail_json(msg=f"Unable to establish CLI connection: {e}/{type(e)}")
-
+        module.fail_json(msg=f"Unable to establish SSH CLI connection: {e}/{type(e)}")
+    module.log("this")
     try:
-        interact = SSHClientInteraction(ssh, display=False, newline='\n')
-        interact.expect("admin:")
+        interact = SSHClientInteraction(ssh, display=False, newline="\n")
+        if interact.expect("admin:", timeout=cli_timeout) == -1:
+            raise ExpectFailed("(CLI startup)")
         interact.send(cli_command)
         output = interact.current_output
         if cli_responses is not None:
@@ -115,8 +131,11 @@ def main():
                     newline = "\n" if item.get("newline", False) else ""
                     character_delay = item.get("character_delay", None)
                 except KeyError as e:
-                    print(f"Error: key {e} missing in cli_responses[{index}]")
-                    sys.exit(1)
+                    module.fail_json(
+                        msg=f"Error: key {e} missing in cli_responses[{index}]"
+                    )
+                if interact.expect(expect, timeout=timeout) == -1:
+                    raise ExpectFailed(expect)
                 if character_delay is not None:
                     sleep(character_delay)
                     for char in response:
@@ -126,15 +145,24 @@ def main():
                 else:
                     interact.send(response, newline=newline)
                 output += interact.current_output
-        interact.expect("admin:")
-        output += interact.current_output
+        if interact.expect("admin:", timeout=cli_timeout) == -1:
+            raise ExpectFailed("(Final CLI prompt)")
         ssh.close()
-    except Exception as e:
-        module.fail_json(msg=f"Error executing CLI command: {e}")
-
+    except ExpectFailed as e:
+        output += interact.current_output
+        module.fail_json(
+            msg=f"{output}\n"
+            f'\n**Timed out expecting: "{e.expect_expression}"**\n'
+            "**(Regex reserved characters..?)**"
+        )
+    except TimeoutError:
+        module.fail_json(msg=f"Connection timed out sending CLI command")
     if "Executed command unsuccessfully" in output:
-        module.fail_json(msg="CLI command did not execute successfully", output=output)
+        module.fail_json(
+            msg="A CLI command was not successful", output=interact.current_output
+        )
 
+    output += interact.current_output
     tokens = output.splitlines()
     tokens = tokens[tokens.index(f"admin:{cli_command}") + 1 : -1]
     tokens[:] = [line.split() for line in tokens]

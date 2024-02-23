@@ -7,3 +7,4 @@ QUERY_RESULTS.csv
 LICENSE_REPORT.txt
 /vault/plugins/oauthapp
 *.ignore
+test_cli.py
