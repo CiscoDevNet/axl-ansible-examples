@@ -53,7 +53,7 @@ The concepts and techniques shown can be extended to enable automated management
 
 * `cli_concurrent_commands.yml` - Pass multiple "`:`" delimited commands, which will be executed across hosts using Ansible concurrent asynchronous actions.
 
-* `cli_utils_fips_enable.yml` - Via CLI, run `utils fips enable`; when prompted, respond with `no`.  Demonstrates using `character_delay` option to send a response as invidual characters separated by a short delay (required by this particular CLI command.)
+* `cli_utils_fips_enable.yml` - Via CLI, run `utils fips enable`; when prompted, respond with `no`.  Demonstrates using `character_delay` option to send a response as invidual characters separated by a short delay (required by some particular CLI command input modes that may drop characters if they arrive too quickly.)
 
 ## Getting started
 
@@ -91,9 +91,30 @@ The concepts and techniques shown can be extended to enable automated management
   ansible-playbook axl_version.yml -vvv
   ```
 
+* When using the example CLI command module, note that YAML has a lengthy list of [reserved characters](https://yaml.org/spec/1.2.2/#53-indicator-characters) that must be properly handled in strings/scalars, so module command/response strings should be properly quoted and/or [escaped](https://yaml.org/spec/1.2.2/#escaped-characters) (using "`\`").
+
+  In addition, response `expect` strings are handled as regular expressions ([Python flavor](https://docs.python.org/3/library/re.html)), which means even more [reserved characters](https://docs.python.org/3/library/re.html#regular-expression-syntax), which must be further escaped.
+
+  For example:
+
+  ```
+  cli_responses:
+    - expect: "Do you want to continue \\(yes/no\\) \\? '
+  ```
+
+  This can be a bit simpler if you use single quotes, which ignores escape characters at the YAML level (so they can be passed on as regex escape characters):
+
+  ```
+  cli_responses:
+    - expect: "Do you want to continue \(yes/no\) \? '
+  ```
+
+
 * The AXL sub-tasks do a little checking to see if adding objects fails due to the object already existing - if so the sub-task is marked as '`changed: no`' (otherwise it is marked '`changed: yes`') - a small attempt to follow the Ansible [indempotency](https://docs.ansible.com/ansible/latest/reference_appendices/glossary.html) pattern.  The CLI module/sub-tasks do not do any special checking and so all tasks are left as default ('`changed: no`') whether they actually change something or not.
 
 * The AXL playbooks use `getCCMVersion` to determine the AXL version of each host at run-time, and and AXL sub-tasks modify the `SOAPAction` header and `xlmns:ns` namespace in the XML templates accordingly.  However, no attempt is made to modify the schema of the AXL request itself based on version.  As AXL request schemas are pretty mature/stable (especially for basic/common requests) this works fine for now, at least for the current set of samples.
+
+* Some VoS CLI commands present an input mode, e.g. for confirmation or data entry.  The input mode for some commands can drop characters if they are sent quickly/all-at-once.  To workaround this see `cli_utils_fips_enable` and the `character_delay` response item option.
 
 ## Todo
 

@@ -54,4 +54,3 @@
         path: "{{ item.results_file }}"
         state: absent
       loop: "{{ response.results }}"
-

@@ -11,7 +11,7 @@ description:
     - Tokenizes by lines and white-space separated items in the CLI text output
     - Returns a list of lines, where each line is a list of white-space delimited tokens (as well as the full text response)
     - Please verify options and example for supported usage
-    - Note: "expect" values must be surrounded by single quotes and have regex reserved characters escaped: \(example\)
+    - Note: "expect" values should be surrounded by single quotes and have regex reserved characters escaped: \(example\)
 author: 'David Staudt'
 options:
 # One or more of the following
@@ -29,7 +29,8 @@ options:
         required: true
     cli_timeout:
         description:
-            - Timeout to connect, receive initial CLI prompt (seconds), final CLI prompt
+            - Timeout to connect, receive initial CLI prompt (seconds), final CLI prompt; default = 30
+        required: false
     cli_command:
         description:
             - Text of the CLI command to be executed
@@ -38,6 +39,12 @@ options:
         description:|
             - A list of dicts containing the next expected outputs and corresponding new
               (timeout, per-character delay, and newline options)
+              Response keys:
+              * expect: Regex to wait for match; values should be surrounded by single quotes and have regex reserved characters escaped: \(example\)
+              * timeout: How long to wait for a match (seconds)
+              * response: Command to send next
+              * newline: Whether to send a new line after the command string
+              * character_delay: Send command string as separate characters, with this delay (seconds, decimals OK) in between
         required: false
 notes:
     - This module supports VOS versions 9.x / 10.x / 11.x / 12.x / 14.x / 15.x
@@ -88,20 +95,18 @@ def main():
         "cli_address": {"required": True, "type": "str"},
         "cli_user": {"required": True, "type": "str"},
         "cli_password": {"required": True, "type": "str", "no_log": True},
-        "cli_timeout": {"required": False, "type": "int"},
+        "cli_timeout": {"required": False, "type": "int", "default": 30},
         "cli_command": {"required": True, "type": "str"},
         "cli_responses": {"required": False, "type": "list", "elements": "dict"},
     }
     module = AnsibleModule(argument_spec=fields)
 
-    (
-        cli_address,
-        cli_user,
-        cli_password,
-        cli_timeout,
-        cli_command,
-        cli_responses,
-    ) = module.params.values()
+    cli_address=module.params["cli_address"]
+    cli_user=module.params["cli_user"]
+    cli_password=module.params["cli_password"]
+    cli_timeout=module.params["cli_timeout"]
+    cli_command=module.params["cli_command"]
+    cli_responses=module.params["cli_responses"]
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -110,12 +115,11 @@ def main():
             hostname=cli_address,
             username=cli_user,
             password=cli_password,
-            timeout=cli_timeout if cli_timeout else 30,
+            timeout=cli_timeout,
             look_for_keys=False,
         )
     except Exception as e:
-        module.fail_json(msg=f"Unable to establish SSH CLI connection: {e}/{type(e)}")
-    module.log("this")
+        module.fail_json(msg=f"Unable to establish SSH CLI connection: {e})")
     try:
         interact = SSHClientInteraction(ssh, display=False, newline="\n")
         if interact.expect("admin:", timeout=cli_timeout) == -1:
@@ -128,7 +132,7 @@ def main():
                     expect = item["expect"]
                     timeout = item.get("timeout", 10)
                     response = item["response"]
-                    newline = "\n" if item.get("newline", False) else ""
+                    newline = "\n" if item.get("newline", True) else ""
                     character_delay = item.get("character_delay", None)
                 except KeyError as e:
                     module.fail_json(
