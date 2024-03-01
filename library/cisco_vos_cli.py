@@ -35,6 +35,7 @@ options:
         description:
             - Text of the CLI command to be executed
         required: true
+    cli_session_end_delay: After all expect/responses, seconds to wait before ending the SSH session
     cli_responses:
         description:|
             - A list of dicts containing the next expected outputs and corresponding new
@@ -68,10 +69,11 @@ EXAMPLES = """
         cli_password: "{{ hostvars[ansible_host].cli_password }}"
         cli_timeout: 30
         cli_command: utils fips enable
+        cli_session_end_delay: 900
         cli_responses:
           - expect: "Do you want to continue (yes/no) ? "
             timeout: 10
-            response: "no"
+            response: "yes"
             character_delay: 0.5
             newline: True    
 """
@@ -97,7 +99,8 @@ def main():
         "cli_password": {"required": True, "type": "str", "no_log": True},
         "cli_timeout": {"required": False, "type": "int", "default": 30},
         "cli_command": {"required": True, "type": "str"},
-        "cli_responses": {"required": False, "type": "list", "elements": "dict"},
+        "cli_session_end_delay": {"required": False, "type": "int"},
+        "cli_responses": {"required": False, "type": "list", "elements": "dict"}
     }
     module = AnsibleModule(argument_spec=fields)
 
@@ -107,6 +110,7 @@ def main():
     cli_timeout=module.params["cli_timeout"]
     cli_command=module.params["cli_command"]
     cli_responses=module.params["cli_responses"]
+    cli_session_end_delay=module.params["cli_session_end_delay"]
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -132,8 +136,8 @@ def main():
                     expect = item["expect"]
                     timeout = item.get("timeout", 10)
                     response = item["response"]
-                    newline = "\n" if item.get("newline", True) else ""
                     character_delay = item.get("character_delay", None)
+                    newline = "\n" if item.get("newline", True) else ""
                 except KeyError as e:
                     module.fail_json(
                         msg=f"Error: key {e} missing in cli_responses[{index}]"
@@ -151,6 +155,8 @@ def main():
                 output += interact.current_output
         if interact.expect("admin:", timeout=cli_timeout) == -1:
             raise ExpectFailed("(Final CLI prompt)")
+        if cli_session_end_delay is not None:
+            sleep(cli_session_end_delay)
         ssh.close()
     except ExpectFailed as e:
         output += interact.current_output
