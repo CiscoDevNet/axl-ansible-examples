@@ -11,7 +11,7 @@
         cli_user: "{{ hostvars[ansible_host].cli_user }}"
         cli_password: "{{ hostvars[ansible_host].cli_password }}"
         cli_timeout: 900 # FIPS operations can take upwards of 10-15 minutes
-        cli_command: utils fips enable
+        cli_command: utils fips disable
         cli_session_end_delay: 10
         cli_responses:
           - expect: 'Do you want to continue \(yes/no\) \? '

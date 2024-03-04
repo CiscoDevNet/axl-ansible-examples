@@ -29,7 +29,7 @@ options:
         required: true
     cli_timeout:
         description:
-            - Timeout to connect, receive initial CLI prompt (seconds), final CLI prompt; default = 30
+            - Timeout for SSH connect, receive initial CLI prompt, final CLI prompt (seconds); default = 30
         required: false
     cli_command:
         description:
@@ -42,7 +42,7 @@ options:
               (timeout, per-character delay, and newline options)
               Response keys:
               * expect: Regex to wait for match; values should be surrounded by single quotes and have regex reserved characters escaped: \(example\)
-              * timeout: How long to wait for a match (seconds)
+              * timeout: How long to wait for a match (seconds); default 10
               * response: Command to send next
               * newline: Whether to send a new line after the command string
               * character_delay: Send command string as separate characters, with this delay (seconds, decimals OK) in between
@@ -109,8 +109,8 @@ def main():
     cli_password=module.params["cli_password"]
     cli_timeout=module.params["cli_timeout"]
     cli_command=module.params["cli_command"]
-    cli_responses=module.params["cli_responses"]
     cli_session_end_delay=module.params["cli_session_end_delay"]
+    cli_responses=module.params["cli_responses"]
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -124,6 +124,7 @@ def main():
         )
     except Exception as e:
         module.fail_json(msg=f"Unable to establish SSH CLI connection: {e})")
+    output=""
     try:
         interact = SSHClientInteraction(ssh, display=False, newline="\n")
         if interact.expect("admin:", timeout=cli_timeout) == -1:
@@ -153,7 +154,7 @@ def main():
                 else:
                     interact.send(response, newline=newline)
                 output += interact.current_output
-        if interact.expect("admin:", timeout=cli_timeout) == -1:
+        if interact.expect(".*admin:", timeout=cli_timeout) == -1:
             raise ExpectFailed("(Final CLI prompt)")
         if cli_session_end_delay is not None:
             sleep(cli_session_end_delay)
